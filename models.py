@@ -19,4 +19,16 @@ class Address(models.Model):
     postalCode = models.CharField(max_length=16)
     isDefault = models.BooleanField(default=False)
 
-    
+class TelephoneNumber(models.Model):
+    TELEPHONE_TYPE = ((0, 'telephone'), (1, 'fax'))
+
+    contact = models.ForeignKey(Contact)
+    number = models.CharField(max_length=255)
+    extension = models.CharField(max_length=255, blank=True, null=True)
+    numberType = models.PositiveIntegerField(choices=TELEPHONE_TYPE, default=0)
+    isDefault = models.BooleanField(default=False)
+
+class Email(models.Model):
+    contact = models.ForeignKey(Contact)
+    email = models.EmailField()
+    isDefault = models.BooleanField(default=False)

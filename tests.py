@@ -41,7 +41,7 @@ class AddressTest (TestCase):
             region = 'testprovince',
             country = 'canada',
             postalCode = 'H0H0H0',
-            isDefault = 1,
+            isDefault = True,
         )
         self.assertEquals('tester', a.contact.name)
         self.assertEquals('123 fake st', a.street1)
@@ -53,3 +53,28 @@ class AddressTest (TestCase):
         self.assertEquals('H0H0H0', a.postalCode)
         self.assertEquals('mailing', a.get_addressType_display())
 
+class TelephoneNumberTest(TestCase):
+    def testTelephoneBasicInfo(self):
+        c = Contact(name='tester')
+        p = TelephoneNumber(
+            contact = c, 
+            number = '1234567890', 
+            extension='123', 
+            numberType = 0,
+            isDefault = True);
+        self.assertEquals('tester', p.contact.name)
+        self.assertEquals('1234567890', p.number)
+        self.assertEquals('123', p.extension)
+        self.assertEquals('telephone', p.get_numberType_display())
+        self.assertTrue(p.isDefault)
+
+        p.numberType = 1
+        self.assertEquals('fax', p.get_numberType_display())
+        
+class EmailTest(TestCase):
+    def testEmailBasicInfo(self):
+        c = Contact(name='tester')
+        e = Email(email='example@example.com', contact=c, isDefault=True)
+        self.assertEquals('tester', e.contact.name);
+        self.assertEquals('example@example.com', e.email)
+        self.assertTrue(e.isDefault)
