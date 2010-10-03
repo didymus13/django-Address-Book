@@ -41,6 +41,7 @@ class AddressTest (TestCase):
             region = 'testprovince',
             country = 'canada',
             postalCode = 'H0H0H0',
+            isDefault = 1,
         )
         self.assertEquals('tester', a.contact.name)
         self.assertEquals('123 fake st', a.street1)
