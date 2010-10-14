@@ -6,12 +6,19 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from django.test.client import Client
 from models import *
 
 class ContactTest (TestCase):
     def testContactBasicInfo(self):
-        c = Contact(name='tester')
-        self.assertEquals('tester', c.name)
+        c = Contact(firstname='mistah', lastname='testah')
+        self.assertEquals('mistah', c.firstname)
+        self.assertEquals('testah', c.lastname)
+        
+    def testContactApiBasicList(self):
+        c = Client()
+        response = c.get('/addressbook/api/contacts/')
+        self.assertContains(response.content, 'tester')
 
 class AddressTest (TestCase):
     def testAddressBasicInfo(self):
