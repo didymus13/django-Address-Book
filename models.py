@@ -2,7 +2,8 @@ from django.db import models
 
 # Create your models here.
 class Contact(models.Model):
-    name = models.CharField(max_length=128)
+    firstname = models.CharField(max_length=128)
+    lastname = models.CharField(max_length=128)
 
 
 class Address(models.Model):
