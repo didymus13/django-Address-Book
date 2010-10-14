@@ -14,7 +14,7 @@ class ContactHandler(BaseHandler):
     
     def read(self, request, contact=None):
         contacts = Contact.objects.all()
-        if id:
+        if contact:
             return contacts.get(pk=contact)
         return contacts
     

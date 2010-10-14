@@ -17,12 +17,11 @@ class ContactTest (TestCase):
         
     def testContactApiBasicList(self):
         c = Client()
-        response = c.get('/addressbook/api/contacts/')
-        self.assertContains(response.content, 'tester')
+        self.assertContains(c.get('/addressbook/api/contacts/'), 'tester')
 
 class AddressTest (TestCase):
     def testAddressBasicInfo(self):
-        c = Contact(name='tester')
+        c = Contact.objects.get(pk=1)
         a = Address(
             contact = c,
             addressType = 0,
@@ -35,7 +34,7 @@ class AddressTest (TestCase):
             postalCode = 'H0H0H0',
             isDefault = True,
         )
-        self.assertEquals('tester', a.contact.name)
+        self.assertEquals('tester', a.contact.lastname)
         self.assertEquals('123 fake st', a.street1)
         self.assertEquals('po box 234', a.street2)
         self.assertEquals('station abc', a.street3)
@@ -47,14 +46,14 @@ class AddressTest (TestCase):
 
 class TelephoneNumberTest(TestCase):
     def testTelephoneBasicInfo(self):
-        c = Contact(name='tester')
+        c = Contact.objects.get(pk=1)
         p = TelephoneNumber(
             contact = c, 
             number = '1234567890', 
             extension='123', 
             numberType = 0,
             isDefault = True);
-        self.assertEquals('tester', p.contact.name)
+        self.assertEquals('tester', p.contact.lastname)
         self.assertEquals('1234567890', p.number)
         self.assertEquals('123', p.extension)
         self.assertEquals('telephone', p.get_numberType_display())
@@ -65,8 +64,8 @@ class TelephoneNumberTest(TestCase):
         
 class EmailTest(TestCase):
     def testEmailBasicInfo(self):
-        c = Contact(name='tester')
+        c = Contact.objects.get(pk=1)
         e = Email(email='example@example.com', contact=c, isDefault=True)
-        self.assertEquals('tester', e.contact.name);
+        self.assertEquals('tester', e.contact.lastname);
         self.assertEquals('example@example.com', e.email)
         self.assertTrue(e.isDefault)
