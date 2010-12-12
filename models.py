@@ -1,9 +1,23 @@
 from django.db import models
 
 # Create your models here.
+class Company(models.Model):
+    name = models.CharField(max_length=128)
+    
+    class Meta:
+        verbose_name_plural = 'companies'
+    
+    def __unicode__(self):
+        return self.name
+    
+    @models.permalink
+    def get_absolute_url(self):
+        return ('companies.views.detail', [str(self.id)])
+
 class Contact(models.Model):
     firstname = models.CharField(max_length=128)
     lastname = models.CharField(max_length=128)
+    company = models.ForeignKey(Company, null=True)
     
     def _makeFullName(self):
         return "%s %s" % (self.firstname, self.lastname)
@@ -11,15 +25,10 @@ class Contact(models.Model):
     
     def __unicode__(self):
         return self.fullname
-    
-    def get_absolute_url(self):
-        return "/addressbook/api/contacts/%d" % (self.id)
-
 
 class Address(models.Model):
     ADDRESS_TYPES = ((0, 'mailing'), (1, 'billing'), (2, 'shipping'),)
 
-    contact = models.ForeignKey(Contact, related_name='addresses')
     addressType = models.PositiveIntegerField(choices=ADDRESS_TYPES, default=0)
     street1 = models.CharField(max_length=255)
     street2 = models.CharField(max_length=255, blank=True, null=True)
@@ -29,6 +38,9 @@ class Address(models.Model):
     country = models.CharField(max_length=128)
     postalCode = models.CharField(max_length=16)
     isDefault = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True
     
     def __unicode__(self):
         return self.street1
@@ -36,10 +48,23 @@ class Address(models.Model):
     def get_absolute_url(self):
         return "/addressbook/api/contacts/%d/addresses/%d" % (self.contact.id, self.id)
 
+class ContactAddress(Address):
+    contact = models.ForeignKey(Contact)
+    
+    @models.permalink
+    def get_absolute_url(self):
+        return('contacts.views.address_detail', [str(self.id)])
+
+class CompanyAddress(Address):
+    company = models.ForeignKey(Company)
+    
+    @models.permalink
+    def get_absolute_url(self):
+        return('companies.views.address_detail', [str(self.id)])
+
 class TelephoneNumber(models.Model):
     TELEPHONE_TYPE = ((0, 'telephone'), (1, 'fax'))
 
-    contact = models.ForeignKey(Contact, related_name='telephoneNumbers')
     number = models.CharField(max_length=255)
     extension = models.CharField(max_length=255, blank=True, null=True)
     numberType = models.PositiveIntegerField(choices=TELEPHONE_TYPE, default=0)
@@ -47,17 +72,44 @@ class TelephoneNumber(models.Model):
 
     def __unicode__(self):
         return self.number
+    
+    class Meta:
+        abstract = True
 
+class ContactTelephone(TelephoneNumber):
+    contact = models.ForeignKey(Contact)
+    
+    @models.permalink
     def get_absolute_url(self):
-        return "/addressbook/api/contacts/%d/telephone-numbers/%d/" % (self.contact.id, self.id)
+        return('contacts.views.telephone_detail', [str(self.id)])
+
+class CompanyTelephone(TelephoneNumber):
+    company = models.ForeignKey(Company)
+    
+    @models.permalink
+    def get_absolute_url(self):
+        return('companies.views.telephone_detail', [str(self.id)])
 
 class Email(models.Model):
-    contact = models.ForeignKey(Contact, related_name='emailAddresses')
     email = models.EmailField()
     isDefault = models.BooleanField(default=False)
+    
+    class Meta:
+        abstract = True
 
     def __unicode__(self):
         return self.email
 
+class ContactEmail(Email):
+    contact = models.ForeignKey(Contact)
+    
+    @models.permalink
     def get_absolute_url(self):
-        return "/addressbook/api/contacts/%d/emails/%d/" % (self.contact.id, self.id)
+        return('contacts.views.email_detail', [str(self.id)])
+
+class CompanyEmail(Email):
+    company = models.ForeignKey(Company)
+    
+    @models.permalink
+    def get_absolute_url(self):
+        return('companies.views.email_detail', [str(self.id)])

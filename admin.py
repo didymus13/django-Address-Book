@@ -1,31 +1,40 @@
 from django.contrib import admin
 from models import *
 
-class AddressAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(Address, AddressAdmin)
+"""
+Contact Administrative Interface
+"""
+class ContactAddressInline(admin.TabularInline):
+    model = ContactAddress
 
-class AddressInline(admin.TabularInline):
-    model = Address
+class ContactTelephoneInline(admin.TabularInline):
+    model = ContactTelephone
 
-class TelephoneNumberAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(TelephoneNumber, TelephoneNumberAdmin)
-
-class TelephoneNumberInline(admin.TabularInline):
-    model = TelephoneNumber
-
-class EmailAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(Email, EmailAdmin)
-
-class EmailInline(admin.TabularInline):
-    model = Email
+class ContactEmailInline(admin.TabularInline):
+    model = ContactEmail
 
 class ContactAdmin(admin.ModelAdmin):
     inlines = [
-        AddressInline,
-        TelephoneNumberInline,
-        EmailInline,
-    ]
+        ContactAddressInline,
+        ContactTelephoneInline,
+        ContactEmailInline, ]
 admin.site.register(Contact, ContactAdmin)
+
+"""
+Company Administrative Inteface
+"""
+class CompanyAddressInline(admin.TabularInline):
+    model = CompanyAddress
+
+class CompanyTelephoneInline(admin.TabularInline):
+    model = CompanyTelephone
+    
+class CompanyEmailInline(admin.TabularInline):
+    model = CompanyEmail
+    
+class CompanyAdmin(admin.ModelAdmin):
+    inlines = [
+        CompanyAddressInline,
+        CompanyTelephoneInline,
+        CompanyEmailInline, ]
+admin.site.register(Company, CompanyAdmin)

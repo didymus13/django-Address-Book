@@ -9,63 +9,118 @@ from django.test import TestCase
 from django.test.client import Client
 from models import *
 
+class CompanyTest (TestCase):
+    
+    def testCompanyCreate(self):
+        c = Company()
+        c.name = 'test corp'
+        c.save()
+        
+        c2 = Company.objects.get(pk=c.id)
+        self.assertEquals(c.name, c2.name)
+    
+    def testAssociateAddress(self):
+        c = Company()
+        c.name = 'test corp'
+        c.save()
+        
+        a = CompanyAddress()
+        a.street1 = '1234 fake street'
+        a.city = 'fakeville'
+        a.region = 'fake prov'
+        a.country = 'fake country'
+        a.postalCode = 'H0H 0H0'
+        a.company = c
+        a.save()
+        
+        self.assertEquals(1, c.companyaddress_set.count())
+        for address in c.companyaddress_set.all():
+            self.assertEquals(a.street1, address.street1)
+    
+    def testAssociateTelephone(self):
+        c = Company()
+        c.name = 'test corp';
+        c.save()
+        
+        t = CompanyTelephone()
+        t.number = '1-800-123-4567'
+        t.company = c
+        t.save()
+        
+        self.assertEquals(1, c.companytelephone_set.count())
+        for telephone in c.companytelephone_set.all():
+            self.assertEquals(t.number, telephone.number)
+    
+    def testAssociateEmail(self):
+        c = Company()
+        c.name = 'test corp'
+        c.save()
+        
+        e = CompanyEmail()
+        e.email = 'example@example.com'
+        e.company = c
+        e.save()
+        
+        self.assertEquals(1, c.companyemail_set.count())
+        for email in c.companyemail_set.all():
+            self.assertEquals(e.email, email.email)
+
 class ContactTest (TestCase):
-    def testContactBasicInfo(self):
-        c = Contact(firstname='mistah', lastname='testah')
-        self.assertEquals('mistah', c.firstname)
-        self.assertEquals('testah', c.lastname)
+    def testContactCreate(self):
+        c = Contact()
+        c.firstname = 'mister'
+        c.lastname = 'tester'
+        c.save()
         
-    def testContactApiBasicList(self):
-        c = Client()
-        self.assertContains(c.get('/addressbook/api/contacts/'), 'tester')
-
-class AddressTest (TestCase):
-    def testAddressBasicInfo(self):
-        c = Contact.objects.get(pk=1)
-        a = Address(
-            contact = c,
-            addressType = 0,
-            street1 = '123 fake st',
-            street2 = 'po box 234',
-            street3 = 'station abc',
-            city = 'Testville',
-            region = 'testprovince',
-            country = 'canada',
-            postalCode = 'H0H0H0',
-            isDefault = True,
-        )
-        self.assertEquals('tester', a.contact.lastname)
-        self.assertEquals('123 fake st', a.street1)
-        self.assertEquals('po box 234', a.street2)
-        self.assertEquals('station abc', a.street3)
-        self.assertEquals('Testville', a.city)
-        self.assertEquals('testprovince', a.region)
-        self.assertEquals('canada', a.country)
-        self.assertEquals('H0H0H0', a.postalCode)
-        self.assertEquals('mailing', a.get_addressType_display())
-
-class TelephoneNumberTest(TestCase):
-    def testTelephoneBasicInfo(self):
-        c = Contact.objects.get(pk=1)
-        p = TelephoneNumber(
-            contact = c, 
-            number = '1234567890', 
-            extension='123', 
-            numberType = 0,
-            isDefault = True);
-        self.assertEquals('tester', p.contact.lastname)
-        self.assertEquals('1234567890', p.number)
-        self.assertEquals('123', p.extension)
-        self.assertEquals('telephone', p.get_numberType_display())
-        self.assertTrue(p.isDefault)
-
-        p.numberType = 1
-        self.assertEquals('fax', p.get_numberType_display())
+        c2 = Contact.objects.get(pk=c.id)
+        self.assertEquals(c.firstname, c2.firstname)
+        self.assertEquals(c.lastname, c2.lastname)
+    
+    def testAssociateAddress(self):
+        c = Contact()
+        c.firstname = 'mister'
+        c.lastname = 'tester'
+        c.save()
         
-class EmailTest(TestCase):
-    def testEmailBasicInfo(self):
-        c = Contact.objects.get(pk=1)
-        e = Email(email='example@example.com', contact=c, isDefault=True)
-        self.assertEquals('tester', e.contact.lastname);
-        self.assertEquals('example@example.com', e.email)
-        self.assertTrue(e.isDefault)
+        a = ContactAddress()
+        a.street1 = '1234 fake street'
+        a.city = 'fakeville'
+        a.region = 'fake prov'
+        a.country = 'fake country'
+        a.postalCode = 'H0H 0H0'
+        a.contact = c
+        a.save()
+        
+        self.assertEquals(1, c.contactaddress_set.count())
+        for address in c.contactaddress_set.all():
+            self.assertEquals(a.street1, address.street1)
+    
+    def testAssociateTelephone(self):
+        c = Contact()
+        c.firstname = 'mister'
+        c.lastname = 'tester'
+        c.save()
+        
+        t = ContactTelephone()
+        t.number = '1-800-123-4567'
+        t.contact = c
+        t.save()
+        
+        self.assertEquals(1, c.contacttelephone_set.count())
+        for telephone in c.contacttelephone_set.all():
+            self.assertEquals(t.number, telephone.number)
+    
+    def testAssociateEmail(self):
+        c = Contact()
+        c.firstname = 'mister'
+        c.lastname = 'tester'
+        c.save()
+        
+        e = ContactEmail()
+        e.email = 'example@example.com'
+        e.contact = c
+        e.save()
+        
+        self.assertEquals(1, c.contactemail_set.count())
+        for email in c.contactemail_set.all():
+            self.assertEquals(e.email, email.email)
