@@ -6,6 +6,7 @@ class Company(models.Model):
     
     class Meta:
         verbose_name_plural = 'companies'
+        ordering = ['name',]
     
     def __unicode__(self):
         return self.name
