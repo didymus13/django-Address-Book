@@ -8,62 +8,72 @@ Replace these with more appropriate tests for your application.
 from django.test import TestCase
 from django.test.client import Client
 from models import *
+import simplejson
 
-class CompanyTest (TestCase):
+class CompanyTest (TestCase):   
     
-    def testCompanyCreate(self):
-        c = Company()
-        c.name = 'test corp'
-        c.save()
-        
-        c2 = Company.objects.get(pk=c.id)
-        self.assertEquals(c.name, c2.name)
+    def setUp(self):
+        self.c = Company(name='test corp')
+        self.c.save()
+        self.client = Client()
     
     def testAssociateAddress(self):
-        c = Company()
-        c.name = 'test corp'
-        c.save()
-        
         a = CompanyAddress()
         a.street1 = '1234 fake street'
         a.city = 'fakeville'
         a.region = 'fake prov'
         a.country = 'fake country'
         a.postalCode = 'H0H 0H0'
-        a.company = c
+        a.company = self.c
         a.save()
         
-        self.assertEquals(1, c.companyaddress_set.count())
-        for address in c.companyaddress_set.all():
+        self.assertEquals(1, self.c.companyaddress_set.count())
+        for address in self.c.companyaddress_set.all():
             self.assertEquals(a.street1, address.street1)
     
     def testAssociateTelephone(self):
-        c = Company()
-        c.name = 'test corp';
-        c.save()
-        
         t = CompanyTelephone()
         t.number = '1-800-123-4567'
-        t.company = c
+        t.company = self.c
         t.save()
         
-        self.assertEquals(1, c.companytelephone_set.count())
-        for telephone in c.companytelephone_set.all():
+        self.assertEquals(1, self.c.companytelephone_set.count())
+        for telephone in self.c.companytelephone_set.all():
             self.assertEquals(t.number, telephone.number)
     
     def testAssociateEmail(self):
-        c = Company()
-        c.name = 'test corp'
-        c.save()
-        
         e = CompanyEmail()
         e.email = 'example@example.com'
-        e.company = c
+        e.company = self.c
         e.save()
         
-        self.assertEquals(1, c.companyemail_set.count())
-        for email in c.companyemail_set.all():
+        self.assertEquals(1, self.c.companyemail_set.count())
+        for email in self.c.companyemail_set.all():
             self.assertEquals(e.email, email.email)
+            
+    def testCompanyApi(self):
+        getResponse = self.client.get('/addressbook/api/company/')
+        self.assertContains(getResponse, self.c.name )
+        getDetailResponse = self.client.get('/addressbook/api/company/%s/' % (self.c.id, ))
+        self.assertContains(getDetailResponse, self.c.name )
+    
+    def testCompanyTelephoneApi(self):
+        t = CompanyTelephone(company=self.c, number='123-456-7890')
+        t.save()
+        getResponse = self.client.get('/addressbook/api/company/%s/telephone/' % (self.c.id, ))
+        self.assertContains(getResponse, t.number) 
+        getDetailResponse = self.client.get('/addressbook/api/company/%s/telephone/%s/' % (self.c.id, t.id))
+        self.assertContains(getDetailResponse, t.number) 
+        
+    def testCompanyAddress(self):
+        a = CompanyAddress(company=self.c, street1='123 fake st', city='fakeville', 
+                           region='fakeprov', country='fakenation', postalCode='12345')
+        a.save()
+        
+        getResponse = self.client.get('/addressbook/api/company/%s/address/' % (self.c.id))
+        self.assertContains(getResponse, a.street1)
+        getDetailResponse = self.client.get('/addressbook/api/company/%s/address/%s/' % (self.c.id, a.id))
+        self.assertContains(getDetailResponse, a.street1)
 
 class ContactTest (TestCase):
     def testContactCreate(self):
