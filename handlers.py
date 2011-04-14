@@ -17,6 +17,41 @@ class ContactHandler(BaseHandler):
         if contact:
             return contacts.get(pk=contact)
         return contacts
+
+class CompanyHandler(BaseHandler):
+    allowed_methods = ('GET',)
+    exclude = ()
+    model = Company
+    
+    def read(self, request, company_id=None):
+        company = Company.objects
+        if company_id:
+            return company.get(pk=company_id)
+        return company.all()
+
+class CompanyTelephoneHandler(BaseHandler):
+    allowed_methods = ('GET',)
+    exclude = ()
+    model = CompanyTelephone
+    
+    def read(self, request, company_id, telephone_id=None):
+        company = Company.objects.get(pk=company_id)
+        tel = CompanyTelephone.objects
+        if telephone_id:
+            return tel.get(pk=telephone_id)
+        return tel.filter(company = company)
+
+class CompanyAddressHandler(BaseHandler):
+    allowed_methods = ('GET',)
+    exclude = ()
+    model = CompanyAddress
+    
+    def read(self, request, company_id, address_id=None):
+        company = Company.objects.get(pk=company_id)
+        address = CompanyAddress.objects
+        if address_id:
+            return address.get(pk=address_id)
+        return address.filter(company = company)
     
 class AddressHandler(BaseHandler):
     allowed_methods = ('GET', )
